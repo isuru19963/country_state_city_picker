@@ -4,34 +4,23 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:dropdown_search/dropdown_search.dart';
+
 import 'model/select_status_model.dart' as StatusModel;
 
 class SelectState extends StatefulWidget {
   final ValueChanged<String> onCountryChanged;
   final ValueChanged<String> onStateChanged;
   final ValueChanged<String> onCityChanged;
-  final VoidCallback? onCountryTap;
-  final VoidCallback? onStateTap;
-  final VoidCallback? onCityTap;
   final TextStyle? style;
   final Color? dropdownColor;
-  final InputDecoration decoration;
-  final double spacing;
 
   const SelectState(
       {Key? key,
       required this.onCountryChanged,
       required this.onStateChanged,
       required this.onCityChanged,
-      this.decoration =
-          const InputDecoration(contentPadding: EdgeInsets.all(0.0)),
-      this.spacing = 0.0,
       this.style,
-      this.dropdownColor,
-      this.onCountryTap,
-      this.onStateTap,
-      this.onCityTap})
+      this.dropdownColor})
       : super(key: key);
 
   @override
@@ -43,8 +32,8 @@ class _SelectStateState extends State<SelectState> {
   List<String> _country = ["Choose Country"];
   String _selectedCity = "Choose City";
   String _selectedCountry = "Choose Country";
-  String _selectedState = "Choose State/Province";
-  List<String> _states = ["Choose State/Province"];
+  String _selectedState = "Choose State";
+  List<String> _states = ["Choose State"];
   var responses;
 
   @override
@@ -126,8 +115,8 @@ class _SelectStateState extends State<SelectState> {
   void _onSelectedCountry(String value) {
     if (!mounted) return;
     setState(() {
-      _selectedState = "Choose  State/Province";
-      _states = ["Choose  State/Province"];
+      _selectedState = "Choose State";
+      _states = ["Choose State"];
       _selectedCountry = value;
       this.widget.onCountryChanged(value);
       getState();
@@ -158,122 +147,93 @@ class _SelectStateState extends State<SelectState> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        DropdownSearch<String>(
-          items: _country,
-          dropdownBuilder: (context, selectedItem) {
-            return Container(
-                child: selectedItem != null
-                    ? Text(
-                        selectedItem,
-                        style: TextStyle(
-                          color: Color(0xff0F1031),
-                          fontSize: 11,
-                        ),
-                      )
-                    : null);
-          },
-          popupProps: PopupProps.menu(
-            disabledItemFn: (value) => value == "Choose Country",
-            showSearchBox: true,
-            searchFieldProps: TextFieldProps(autofocus: true),
-            // showSelectedItems: true,
-          ),
-          dropdownDecoratorProps: DropDownDecoratorProps(
-            dropdownSearchDecoration: InputDecoration(
-                labelStyle: TextStyle(color: Colors.grey, fontSize: 11),
-                label: Text('Choose Country'),
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Color(0xffBBC2C9))),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Color(0xff0F1031))),
-                floatingLabelBehavior: FloatingLabelBehavior.auto),
-          ),
+        DropdownButtonFormField<String>(
+          dropdownColor: widget.dropdownColor,
+          isExpanded: true,
+          items: _country.map((String dropDownStringItem) {
+            return DropdownMenuItem<String>(
+              value: dropDownStringItem,
+              child: Row(
+                children: [
+                  Text(
+                    dropDownStringItem,
+                    style: widget.style,
+                  )
+                ],
+              ),
+            );
+          }).toList(),
           onChanged: (value) => _onSelectedCountry(value!),
+          value: _selectedCountry,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor:Color.fromARGB(255, 242, 243, 247),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 20,
+            ),
+          ),
         ),
         SizedBox(
-          height: widget.spacing,
+          height: 10.0,
         ),
-        DropdownSearch<String>(
-          items: _states,
-          dropdownBuilder: (context, selectedItem) {
-            return Container(
-                child: selectedItem != null
-                    ? Text(
-                        selectedItem,
-                        style: TextStyle(
-                          color: Color(0xff0F1031),
-                          fontSize: 11,
-                        ),
-                      )
-                    : null);
-          },
-          popupProps: PopupProps.menu(
-            disabledItemFn: (value) => value == "Choose  State/Province",
-            showSearchBox: true,
-            searchFieldProps: TextFieldProps(autofocus: true),
-            // showSelectedItems: true,
-          ),
-          dropdownDecoratorProps: DropDownDecoratorProps(
-            dropdownSearchDecoration: InputDecoration(
-                labelStyle: TextStyle(color: Colors.grey, fontSize: 11),
-                label: Text('Choose  State/Province'),
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Color(0xffBBC2C9))),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Color(0xff0F1031))),
-                floatingLabelBehavior: FloatingLabelBehavior.auto),
-          ),
+        DropdownButtonFormField<String>(
+          dropdownColor: widget.dropdownColor,
+          isExpanded: true,
+          items: _states.map((String dropDownStringItem) {
+            return DropdownMenuItem<String>(
+              value: dropDownStringItem,
+              child: Text(dropDownStringItem, style: widget.style),
+            );
+          }).toList(),
           onChanged: (value) => _onSelectedState(value!),
+          value: _selectedState,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Color.fromARGB(255, 242, 243, 247),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 20,
+            ),
+          ),
         ),
         SizedBox(
-          height: widget.spacing,
+          height: 10.0,
         ),
-        DropdownSearch<String>(
-          items: _cities,
-          dropdownBuilder: (context, selectedItem) {
-            return Container(
-                child: selectedItem != null
-                    ? Text(
-                        selectedItem,
-                        style: TextStyle(
-                          color: Color(0xff0F1031),
-                          fontSize: 11,
-                        ),
-                      )
-                    : null);
-          },
-          popupProps: PopupProps.menu(
-            disabledItemFn: (value) => value == "Choose City",
-            showSearchBox: true,
-            searchFieldProps: TextFieldProps(autofocus: true),
-            // showSelectedItems: true,
-          ),
-          dropdownDecoratorProps: DropDownDecoratorProps(
-            dropdownSearchDecoration: InputDecoration(
-                labelStyle: TextStyle(color: Colors.grey, fontSize: 11),
-                label: Text('Choose City'),
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Color(0xffBBC2C9))),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(color: Color(0xff0F1031))),
-                floatingLabelBehavior: FloatingLabelBehavior.auto),
-          ),
+        DropdownButtonFormField<String>(
+          dropdownColor: widget.dropdownColor,
+          isExpanded: true,
+          items: _cities.map((String dropDownStringItem) {
+            return DropdownMenuItem<String>(
+              value: dropDownStringItem,
+              child: Text(dropDownStringItem, style: widget.style),
+            );
+          }).toList(),
           onChanged: (value) => _onSelectedCity(value!),
+          value: _selectedCity,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Color.fromARGB(255, 242, 243, 247),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 20,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 10.0,
         ),
       ],
     );
